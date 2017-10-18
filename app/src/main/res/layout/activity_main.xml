@@ -131,17 +131,17 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"/>
 
-        <!--android:text="#遇见你，是我一生的春暖花开#"-->
         <TextView
             android:id="@+id/tv_love_sentence"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
             android:layout_marginTop="8dp"
-            android:text="@string/sentence"
             android:textSize="16sp"
+            android:lineSpacingExtra="4dp"
+            android:gravity="center"
             android:textColor="@color/passColor"
             app:layout_constraintBottom_toTopOf="@+id/bt_get_pass"
             app:layout_constraintLeft_toLeftOf="parent"
