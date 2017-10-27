@@ -4,5 +4,6 @@
     <string name="one_key">一键 优雅</string>
     <string name="get_pass">拨打NSUCC号码</string>
     <string name="point">· · ·</string>
-    <string name="one_key_make_call">一键拨打</string>
+    <string name="add_sentence">添加</string>
+    <string name="input_sentence">输入句子</string>
 </resources>
