@@ -77,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
                     seed = Integer.valueOf(responseStr);
                     Random random = new Random();
                     int pos = random.nextInt(seed - 1);
+                    if (pos == 0)
+                        pos = 1;
                     request = new Request.Builder().url(URL + pos).build();
                     response = sOkHttpClient.newCall(request).execute();
                     if (response != null) {
