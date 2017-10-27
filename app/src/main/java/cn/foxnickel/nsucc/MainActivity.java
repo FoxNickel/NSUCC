@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.i(TAG, "subscribe: " + responseStr);
                     seed = Integer.valueOf(responseStr);
                     Random random = new Random();
-                    int pos = random.nextInt(seed - 1);
+                    int pos = random.nextInt(seed + 1);
                     if (pos == 0)
                         pos = 1;
                     request = new Request.Builder().url(URL + pos).build();
