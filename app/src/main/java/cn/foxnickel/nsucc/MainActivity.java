@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -19,6 +20,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Random;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,21 +41,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_PHONE_NUMBER = "phone_number";
     private final String[] mPhoneNumbers = {"17188211261", "17051285279", "18117814517", "18117814607"};
     private TextView mLoveSentence;
-    private final String[] mLoveSentences = {
-            "遇见你，是我一生的春暖花开",
-            "我喜欢你，在所有时候，也喜欢有些人，在他们偶尔像你的时候。",
-            "我把我整个的灵魂都给你，连同它的怪癖，耍小脾气，忽明忽暗， 一千八百种坏毛病。它真讨厌，只有一点好，爱你。",
-            "Someone say hi, someone say bye. So Someone smile and someone cry. Someone will give up, but someone always try. Someone may forget you, but never I.",
-            "时光静好，与君语；细水流年，与君同；繁华落尽，与君老。",
-            "和我做一切疯狂大胆不计后果的事情吧，趁我们都年轻，死去还能活，趁我们都勇敢，趁我还爱你。",
-            "如果我爱你，将是很久很久的事。",
-            "我喜欢你是寂静的。从此以后，我爱你，君权神授，责无旁贷。",
-            "有那么一天，有一个人， 会走进你的生活，让你明白， 为什么你和其他人都没有结果。",
-            "你便是落了我牙，歪了我嘴，瘸了我腿，折了我手，我也要向着这烟花路上走。",
-            "如果不是你，那么是谁都一样。",
-            "饭在锅里，我在床上。",
-            "你在我身边也好，在天边也罢，想到有一个你，就觉得整个世界也变得温柔安定。",
-    };
+    private static final OkHttpClient sOkHttpClient = new OkHttpClient();
+    private static final String URL = "http://www.foxnickel.cn:520/";
+    private final String TAG = getClass().getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +63,55 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String createSentence() {
-        Random random = new Random();
-        int pos = random.nextInt(mLoveSentences.length);
-        return "#" + mLoveSentences[pos] + "#";
+    private void showSentence() {
+
+        Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(@io.reactivex.annotations.NonNull ObservableEmitter<String> e) throws Exception {
+                int seed;
+                Request request = new Request.Builder().url(URL + "0").build();
+                Response response = sOkHttpClient.newCall(request).execute();
+                if (response != null) {
+                    String responseStr = response.body().string();
+                    Log.i(TAG, "subscribe: " + responseStr);
+                    seed = Integer.valueOf(responseStr);
+                    Random random = new Random();
+                    int pos = random.nextInt(seed - 1);
+                    request = new Request.Builder().url(URL + pos).build();
+                    response = sOkHttpClient.newCall(request).execute();
+                    if (response != null) {
+                        responseStr = response.body().string();
+                        Log.i(TAG, "subscribe: " + responseStr);
+                        e.onNext(responseStr);
+                    }
+                } else {
+                    e.onError(new Exception());
+                }
+            }
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@io.reactivex.annotations.NonNull String s) {
+                        Log.i(TAG, "onNext: s " + s);
+                        mLoveSentence.setText(s);
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                        mLoveSentence.setText(e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     private void makeCall() {
@@ -108,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         mCall = (Button) findViewById(R.id.bt_get_pass);
         mTvVersion = (TextView) findViewById(R.id.tv_version);
         mLoveSentence = (TextView) findViewById(R.id.tv_love_sentence);
-        mLoveSentence.setText(createSentence());
+        showSentence();
         /*设置界面显示的版本号*/
         try {
             String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
